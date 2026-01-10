@@ -1,0 +1,38 @@
+name: Scraper Diario Glovo
+
+# Se ejecuta todos los días a las 11:00 UTC (ajusta según tu hora local)
+on:
+  schedule:
+    - cron: '0 11 * * *' 
+  workflow_dispatch: # Permite ejecutarlo manualmente desde un botón para probar
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Instalar dependencias
+        run: |
+          pip install -r requirements.txt
+
+      - name: Ejecutar Scraper
+        run: python main.py
+
+      - name: Guardar cambios (Commit y Push)
+        run: |
+          git config --global user.name 'GlovoBot'
+          git config --global user.email 'bot@noreply.github.com'
+          git add historial_ofertas.csv
+          git commit -m "Actualización diaria de ofertas" || exit 0
+          git push
